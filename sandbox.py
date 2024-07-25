@@ -5,14 +5,11 @@ TODO: save data after i filter to a sqlite database or postgres
 TODO: deploy to the cloud
 TODO: setup linux box with nvim, zellij and any other cli tools i need to persist changes
 
-
+Fromula for MC of a token = FDV = (total supply - burned supply) * price
+need quote and TCS (total circulating supply)
 get contract deployer address
 
-https://api.basescan.org/api
-   ?module=contract
-   &action=getcontractcreation
-   &contractaddresses=0xB83c27805aAcA5C7082eB45C868d955Cf04C337F,0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45,0xe4462eb568E2DFbb5b0cA2D3DbB1A35C9Aa98aad,0xdAC17F958D2ee523a2206206994597C13D831ec7,0xf5b969064b91869fBF676ecAbcCd1c5563F591d0
-   &apikey=YourApiKeyToken
+
 
 """
 
@@ -23,9 +20,6 @@ import time
 
 from dotenv import load_dotenv
 from web3 import Web3
-
-r = requests.get("https://")
-print(r.json)
 
 
 load_dotenv()
@@ -67,6 +61,10 @@ weth9_addy = uniswap_router_contract.functions.WETH9().call()
 print(uniswap_router_contract.functions.factory().call())
 
 
+def basescan_link(addy):
+    return f"https://basescan.org/address/{addy}"
+
+
 def get_ERC20_token(event):
     # print(f"New Pool created: {event}")
     token0 = event["args"]["token0"]
@@ -74,7 +72,7 @@ def get_ERC20_token(event):
     token0IsWeth = False
     token1IsWeth = False
     ERC20_ADDY = ""
-    ERC20_LINK = ""
+    BASESCAN_LINK = ""
 
     print(f"Token0: {token0}")
     print(f"Token1: {token1}")
@@ -89,12 +87,12 @@ def get_ERC20_token(event):
 
     if token0IsWeth:
         ERC20_ADDY = token1
-        ERC20_LINK = f"https://basescan.org/address/{ERC20_ADDY}"
+        BASESCAN_LINK = basescan_link(ERC20_ADDY)
     if token1IsWeth:
         ERC20_ADDY = token0
-        ERC20_LINK = f"https://basescan.org/address/{ERC20_ADDY}"
+        BASESCAN_LINK = basescan_link(ERC20_ADDY)
 
-    return (ERC20_ADDY, ERC20_LINK)
+    return (ERC20_ADDY, BASESCAN_LINK)
 
 
 def check_new_pools(from_block, to_block):
@@ -102,9 +100,14 @@ def check_new_pools(from_block, to_block):
         fromBlock=from_block, toBlock=to_block
     )
     for event in events:
-        (ERC20_ADDY, ERC20_LINK) = get_ERC20_token(event)
+        # TODO: Deployer address (balance, from, age) ✅
+        # TODO: Token Image (need to figure out api to retrieve token image)
+        # TODO: tax (buy, sell, trade???)
+        # TODO: similiar tokens
+
+        (ERC20_ADDY, BASESCAN_LINK) = get_ERC20_token(event)
         print(f"This is the new token > {ERC20_ADDY}")
-        print(ERC20_LINK)
+        print("Token Basescan link >>>", BASESCAN_LINK)
         ERC20_CONTRACT = w3.eth.contract(address=ERC20_ADDY, abi=ERC20_ABI)
         print(ERC20_CONTRACT)
         name = ERC20_CONTRACT.functions.name().call()
@@ -116,16 +119,32 @@ def check_new_pools(from_block, to_block):
             f"token info > name: {name} | Symbol: {symbol} | decimals: {decimals} | total_supply: {total_supply} | "
         )
 
-        # TODO: NAME
-        # TODO: Symbol
-        # TODO: Supply
-        # TODO: Decimals
-        # TODO: Contract Address
+        r = requests.get(
+            f"https://api.basescan.org/api?module=contract&action=getcontractcreation&contractaddresses={ERC20_ADDY}&apikey={BASESCAN_API_TOKEN}"
+        )
 
-        # TODO: Deployer address (balance, from, age)
-        # TODO: Token Image
-        # TODO: tax (buy, sell, trade???)
-        # TODO: similiar tokens
+        deployer = r.json()
+        deployer_addy = deployer["result"][0]["contractCreator"]
+        deployer_txHash = deployer["result"][0]["txHash"]
+
+        token_info = {
+            "name": name,
+            "total_supply": total_supply,
+            "decimals": decimals,
+            "symbol": symbol,
+            "deployer_addy": deployer_addy,
+            "deployer_txHash": deployer_txHash,
+            "basescan_deployer_url": basescan_link(deployer_addy),
+            "basescan_token_url": BASESCAN_LINK,
+        }
+
+        print("token info >>", token_info)
+
+        print(f"Deployer addy > {deployer_addy} | Deployer txHash > {deployer_txHash}")
+        print("Deployer Base scan link > ", basescan_link(deployer_addy))
+        print("----------------------------")
+
+        # TODO: Display information in discord
 
 
 latest_block = None
