@@ -1,17 +1,36 @@
 """
 TODO: look up token
-TODO: save data after i filter to a sqlite database
+TODO: dislay information on discord
+TODO: save data after i filter to a sqlite database or postgres
+TODO: deploy to the cloud
+TODO: setup linux box with nvim, zellij and any other cli tools i need to persist changes
+
+
+get contract deployer address
+
+https://api.basescan.org/api
+   ?module=contract
+   &action=getcontractcreation
+   &contractaddresses=0xB83c27805aAcA5C7082eB45C868d955Cf04C337F,0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45,0xe4462eb568E2DFbb5b0cA2D3DbB1A35C9Aa98aad,0xdAC17F958D2ee523a2206206994597C13D831ec7,0xf5b969064b91869fBF676ecAbcCd1c5563F591d0
+   &apikey=YourApiKeyToken
 
 """
 
+import requests
+import os
 import json
 import time
 
 from dotenv import load_dotenv
 from web3 import Web3
 
+r = requests.get("https://")
+print(r.json)
+
+
 load_dotenv()
 # DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+BASESCAN_API_TOKEN = os.getenv("BASESCAN_API_TOKEN")
 
 rpc_url = "https://mainnet.base.org"
 w3 = Web3(Web3.HTTPProvider(rpc_url))
@@ -44,6 +63,7 @@ uniswap_factory_contract = w3.eth.contract(
 )
 
 weth9_addy = uniswap_router_contract.functions.WETH9().call()
+
 print(uniswap_router_contract.functions.factory().call())
 
 
@@ -64,18 +84,15 @@ def get_ERC20_token(event):
 
     if token0 == weth9_addy:
         token0IsWeth = True
-    if token0 == weth9_addy:
+    if token1 == weth9_addy:
         token1IsWeth = True
 
     if token0IsWeth:
-        ERC20 = token0
-        ERC20_ADDY = f"https://basescan.org/address/{ERC20}"
+        ERC20_ADDY = token1
+        ERC20_LINK = f"https://basescan.org/address/{ERC20_ADDY}"
     if token1IsWeth:
-        ERC20 = token1
-        ERC20_ADDY = f"https://basescan.org/address/{ERC20}"
-
-    print(f"This is the new token > {ERC20}")
-    print(ERC20_ADDY)
+        ERC20_ADDY = token0
+        ERC20_LINK = f"https://basescan.org/address/{ERC20_ADDY}"
 
     return (ERC20_ADDY, ERC20_LINK)
 
@@ -85,8 +102,30 @@ def check_new_pools(from_block, to_block):
         fromBlock=from_block, toBlock=to_block
     )
     for event in events:
-        erc20 = get_ERC20_token(event)
-        print(erc20)
+        (ERC20_ADDY, ERC20_LINK) = get_ERC20_token(event)
+        print(f"This is the new token > {ERC20_ADDY}")
+        print(ERC20_LINK)
+        ERC20_CONTRACT = w3.eth.contract(address=ERC20_ADDY, abi=ERC20_ABI)
+        print(ERC20_CONTRACT)
+        name = ERC20_CONTRACT.functions.name().call()
+        total_supply = ERC20_CONTRACT.functions.totalSupply().call()
+        decimals = ERC20_CONTRACT.functions.decimals().call()
+        symbol = ERC20_CONTRACT.functions.symbol().call()
+
+        print(
+            f"token info > name: {name} | Symbol: {symbol} | decimals: {decimals} | total_supply: {total_supply} | "
+        )
+
+        # TODO: NAME
+        # TODO: Symbol
+        # TODO: Supply
+        # TODO: Decimals
+        # TODO: Contract Address
+
+        # TODO: Deployer address (balance, from, age)
+        # TODO: Token Image
+        # TODO: tax (buy, sell, trade???)
+        # TODO: similiar tokens
 
 
 latest_block = None

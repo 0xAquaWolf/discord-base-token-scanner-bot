@@ -16,6 +16,7 @@ else:
 # Load environment variables from .env file
 load_dotenv()
 DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+BASESCAN_API_TOKEN = os.getenv("BASESCAN_API_TOKEN")
 
 # Set up bot intents
 intents = discord.Intents.default()
