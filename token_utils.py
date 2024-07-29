@@ -35,11 +35,15 @@ uniswap_factory_contract = w3.eth.contract(
     address=uniswap_addys["UniswapV2Factory"], abi=uniswap_factory_abi
 )
 
-weth9_addy = uniswap_router_contract.functions.WETH9().call()
+weth9_addy = uniswap_router_contract.functions.WETH().address
 
 
 def basescan_link(addy):
     return f"https://basescan.org/address/{addy}"
+
+
+def basescan_tx_link(addy):
+    return f"https://basescan.org/tx/{addy}"
 
 
 def dexscreener_link(addy):
@@ -131,4 +135,5 @@ __all__ = [
     "get_deployer_info",
     "format_token_info",
     "dexscreener_link",
+    "basescan_tx_link",
 ]
