@@ -9,8 +9,6 @@ Fromula for MC of a token = FDV = (total supply - burned supply) * price
 need quote and TCS (total circulating supply)
 get contract deployer address
 
-
-
 """
 
 import requests

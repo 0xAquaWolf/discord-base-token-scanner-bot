@@ -9,7 +9,8 @@ load_dotenv()
 BASESCAN_API_TOKEN = os.getenv("BASESCAN_API_TOKEN")
 
 # Connect to Base chain
-rpc_url = "https://mainnet.base.org"
+rpc_url = "https://mainnet.base.org/"
+# rpc_url = "https://base.llamarpc.com"
 w3 = Web3(Web3.HTTPProvider(rpc_url))
 
 # Load contract ABIs and addresses
@@ -31,7 +32,7 @@ uniswap_router_contract = w3.eth.contract(
 )
 
 uniswap_factory_contract = w3.eth.contract(
-    address=uniswap_addys["UniswapV3Factory"], abi=uniswap_factory_abi
+    address=uniswap_addys["UniswapV2Factory"], abi=uniswap_factory_abi
 )
 
 weth9_addy = uniswap_router_contract.functions.WETH9().call()
@@ -39,6 +40,10 @@ weth9_addy = uniswap_router_contract.functions.WETH9().call()
 
 def basescan_link(addy):
     return f"https://basescan.org/address/{addy}"
+
+
+def dexscreener_link(addy):
+    return f"https://dexscreener.com/base/{addy}"
 
 
 def get_ERC20_token(event):
@@ -125,4 +130,5 @@ __all__ = [
     "get_token_info",
     "get_deployer_info",
     "format_token_info",
+    "dexscreener_link",
 ]
