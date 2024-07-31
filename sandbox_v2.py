@@ -1,3 +1,30 @@
+"""
+TODO: Re-Architech the bot so that it run asyncio with co-routines for every process
+TODO: Impliment a process manger that oversees all of the coroutines
+TODO: Create a event queue
+TODO: Message handler
+TODO: Impliment a way to handle error messages and logs
+TODO: Figure out how i'm going to configure it so that i can build the core engine and
+then swap out any settings without having to rewrite the code
+
+TODO: record how much liquidity is added
+- How much ETH
+- How much of the created token
+- How much LP the deployer recieved
+
+TODO: update discord bot with addLiquidityETH
+
+TODO: save to sqlite db
+
+TODO: monitor for the remove liquidity event as well
+- create a seperate channel
+- create
+
+- Handle this off of stream
+TODO: create another bot
+TODO: create a sandbox channel for testing all types of discord features
+"""
+
 import json
 import time
 from dotenv import load_dotenv
