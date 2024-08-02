@@ -23,6 +23,9 @@ TODO: monitor for the remove liquidity event as well
 - Handle this off of stream
 TODO: create another bot
 TODO: create a sandbox channel for testing all types of discord features
+
+
+TODO: removedLiqidityETH Event
 """
 
 import json

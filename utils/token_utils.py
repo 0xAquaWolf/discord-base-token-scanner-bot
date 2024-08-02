@@ -14,36 +14,36 @@ rpc_url = "https://mainnet.base.org/"
 w3 = Web3(Web3.HTTPProvider(rpc_url))
 
 # Load contract ABIs and addresses
-with open("uniswap_base_addys.json") as f:
+with open("./config/uniswap_base_addys.json") as f:
     uniswap_addys = json.load(f)
 
-with open("uniswap_router_abi.json") as f:
-    universal_router_abi = json.load(f)
+with open("./abis/uniswap_router_abi.json") as f:
+    uniswap_router_abi = json.load(f)
 
-with open("uniswap_factory_abi.json") as f:
+with open("./abis/uniswap_factory_abi.json") as f:
     uniswap_factory_abi = json.load(f)
 
-with open("ERC20_ABI.json") as f:
+with open("./abis/ERC20_ABI.json") as f:
     ERC20_ABI = json.load(f)
 
 # Initialize contracts
 uniswap_router_contract = w3.eth.contract(
-    address=uniswap_addys["router"], abi=universal_router_abi
+    address=uniswap_addys["UniswapV2Router"], abi=uniswap_router_abi
 )
 
 uniswap_factory_contract = w3.eth.contract(
     address=uniswap_addys["UniswapV2Factory"], abi=uniswap_factory_abi
 )
 
-weth9_addy = uniswap_router_contract.functions.WETH().address
+weth_addy = uniswap_router_contract.functions.WETH().call()
 
 
 def basescan_link(addy):
     return f"https://basescan.org/address/{addy}"
 
 
-def basescan_tx_link(addy):
-    return f"https://basescan.org/tx/{addy}"
+def basescan_tx_link(hash):
+    return f"https://basescan.org/tx/{hash}"
 
 
 def dexscreener_link(addy):
@@ -53,8 +53,8 @@ def dexscreener_link(addy):
 def get_ERC20_token(event):
     token0 = event["args"]["token0"]
     token1 = event["args"]["token1"]
-    token0IsWeth = token0 == weth9_addy
-    token1IsWeth = token1 == weth9_addy
+    token0IsWeth = token0 == weth_addy
+    token1IsWeth = token1 == weth_addy
 
     if token0IsWeth:
         ERC20_ADDY = token1
@@ -116,6 +116,19 @@ def format_token_info(token_info):
     return formatted_info
 
 
+def print_token_info(token_info):
+    print("New token detected:")
+    print(f"Name: {token_info['name']}")
+    print(f"Symbol: {token_info['symbol']}")
+    print(f"Total Supply: {token_info['total_supply']}")
+    print(f"Decimals: {token_info['decimals']}")
+    print(f"Deployer Address: {token_info['deployer_addy']}")
+    print(f"Deployer Transaction: {token_info['deployer_txHash']}")
+    print(f"Basescan Deployer URL: {token_info['basescan_deployer_url']}")
+    print(f"Basescan Token URL: {token_info['basescan_token_url']}")
+    print("---")
+
+
 # You might want to add more utility functions here as needed
 
 # Test the connection
@@ -128,6 +141,7 @@ else:
 __all__ = [
     "w3",
     "uniswap_factory_contract",
+    "uniswap_router_contract",
     "ERC20_ABI",
     "get_ERC20_token",
     "basescan_link",
@@ -136,4 +150,7 @@ __all__ = [
     "format_token_info",
     "dexscreener_link",
     "basescan_tx_link",
+    "print_token_info",
+    "weth_addy",
+    "uniswap_addys",
 ]
