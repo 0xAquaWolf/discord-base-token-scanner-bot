@@ -7,23 +7,33 @@ import requests
 # Load environment variables
 load_dotenv()
 BASESCAN_API_TOKEN = os.getenv("BASESCAN_API_TOKEN")
+# Get the absolute path of the current file
+# current_file = os.path.abspath(__file__)
 
+# # Get the directory containing the current file
+# current_dir = os.path.dirname(current_file)
+
+# # Get the parent directory (which should be 'src')
+# src_dir = os.path.dirname(current_dir)
+
+# # Get the project root directory (parent of 'src')
+# BASE_PATH = os.path.dirname(src_dir)
 # Connect to Base chain
 rpc_url = "https://mainnet.base.org/"
 # rpc_url = "https://base.llamarpc.com"
 w3 = Web3(Web3.HTTPProvider(rpc_url))
 
 # Load contract ABIs and addresses
-with open("./config/uniswap_base_addys.json") as f:
+with open("./contracts/addresses/uniswap_base_addys.json") as f:
     uniswap_addys = json.load(f)
 
-with open("./abis/uniswap_router_abi.json") as f:
+with open("./contracts/abis/uniswap_router_abi.json") as f:
     uniswap_router_abi = json.load(f)
 
-with open("./abis/uniswap_factory_abi.json") as f:
+with open("./contracts/abis/uniswap_factory_abi.json") as f:
     uniswap_factory_abi = json.load(f)
 
-with open("./abis/ERC20_ABI.json") as f:
+with open("./contracts/abis/ERC20_ABI.json") as f:
     ERC20_ABI = json.load(f)
 
 # Initialize contracts
